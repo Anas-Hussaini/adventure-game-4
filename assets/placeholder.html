@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asset Generator</title>
+</head>
+<body>
+    <h1>Generating Placeholder Assets...</h1>
+    <div id="output"></div>
+
+    <script>
+        function generateAsset(name, width, height, color, frames = 1) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width * frames;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            for (let i = 0; i < frames; i++) {
+                ctx.fillStyle = color;
+                ctx.fillRect(i * width, 0, width, height);
+                
+                // Add some simple details
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(i * width + 2, 2, width - 4, height - 4);
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(i * width + 4, 4, width - 8, height - 8);
+            }
+            
+            return canvas.toDataURL();
+        }
+        
+        function downloadAsset(dataUrl, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataUrl;
+            link.click();
+        }
+        
+        // Generate assets
+        const assets = [
+            { name: 'player', width: 32, height: 32, color: '#00ff00', frames: 8 },
+            { name: 'enemy', width: 32, height: 32, color: '#ff0000', frames: 4 },
+            { name: 'gem', width: 16, height: 16, color: '#00ffff', frames: 8 },
+            { name: 'heart', width: 16, height: 16, color: '#ff69b4', frames: 1 },
+            { name: 'tiles', width: 32, height: 32, color: '#8b4513', frames: 1 },
+            { name: 'background', width: 800, height: 600, color: '#87ceeb', frames: 1 }
+        ];
+        
+        assets.forEach(asset => {
+            const dataUrl = generateAsset(asset.name, asset.width, asset.height, asset.color, asset.frames);
+            downloadAsset(dataUrl, asset.name + '.png');
+        });
+        
+        document.getElementById('output').innerHTML = '<p>Assets generated! Check your downloads folder.</p>';
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "width": 50,
+  "height": 38,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "layers": [
+    {
+      "name": "background",
+      "width": 50,
+      "height": 38,
+      "data": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    }
+  ],
+  "tilesets": [
+    {
+      "name": "tiles",
+      "tilewidth": 32,
+      "tileheight": 32,
+      "tiles": [
+        {
+          "id": 0,
+          "properties": [
+            {
+              "name": "walkable",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "properties": [
+            {
+              "name": "walkable",
+              "value": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
