@@ -171,19 +171,118 @@
     <!-- Phaser.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
     
-    <!-- Game Scripts -->
-    <script src="js/scenes/BootScene.js"></script>
-    <script src="js/scenes/DifficultyScene.js"></script>
-    <script src="js/scenes/GameScene.js"></script>
-    <script src="js/scenes/GameOverScene.js"></script>
-    <script src="js/entities/Player.js"></script>
-    <script src="js/entities/Player2.js"></script>
-    <script src="js/entities/Player3.js"></script>
-    <script src="js/entities/Enemy.js"></script>
-    <script src="js/entities/Gem.js"></script>
-    <script src="js/game.js"></script>
-    
     <script>
+        // Wait for Phaser to load before loading game scripts
+        function loadGameScripts() {
+            // Load all game scripts in order
+            const scripts = [
+                'js/scenes/BootScene.js',
+                'js/scenes/DifficultyScene.js',
+                'js/scenes/GameScene.js',
+                'js/scenes/GameOverScene.js',
+                'js/entities/Player.js',
+                'js/entities/Player2.js',
+                'js/entities/Player3.js',
+                'js/entities/Enemy.js',
+                'js/entities/Gem.js',
+                'js/game.js'
+            ];
+            
+            let loadedScripts = 0;
+            
+            function loadScript(src) {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = () => {
+                        console.log(`Loaded: ${src}`);
+                        loadedScripts++;
+                        resolve();
+                    };
+                    script.onerror = () => {
+                        console.error(`Failed to load: ${src}`);
+                        reject(new Error(`Failed to load ${src}`));
+                    };
+                    document.head.appendChild(script);
+                });
+            }
+            
+            // Load scripts sequentially
+            async function loadAllScripts() {
+                try {
+                    for (const script of scripts) {
+                        await loadScript(script);
+                    }
+                    console.log('All scripts loaded successfully!');
+                    
+                    // Initialize game after all scripts are loaded
+                    setTimeout(() => {
+                        if (typeof Phaser !== 'undefined' && typeof BootScene !== 'undefined') {
+                            initializeGame();
+                        } else {
+                            console.error('Phaser or game classes not available');
+                            showError('Game dependencies not loaded properly');
+                        }
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error('Error loading scripts:', error);
+                    showError('Failed to load game files: ' + error.message);
+                }
+            }
+            
+            loadAllScripts();
+        }
+        
+        function initializeGame() {
+            try {
+                // Main game configuration
+                const config = {
+                    type: Phaser.AUTO,
+                    width: 800,
+                    height: 600,
+                    parent: 'game-container',
+                    backgroundColor: '#2c3e50',
+                    physics: {
+                        default: 'arcade',
+                        arcade: {
+                            gravity: { y: 0 },
+                            debug: false
+                        }
+                    },
+                    scene: [BootScene, DifficultyScene, GameScene, GameOverScene]
+                };
+
+                // Create game instance
+                window.game = new Phaser.Game(config);
+                console.log('Game started successfully!');
+                
+                // Add event listener for when game is ready
+                window.game.events.once('ready', function() {
+                    console.log('Game is ready!');
+                    const loading = document.getElementById('loading');
+                    if (loading) loading.style.display = 'none';
+                });
+                
+            } catch (error) {
+                console.error('Error starting game:', error);
+                showError('Error starting game: ' + error.message);
+            }
+        }
+        
+        function showError(message) {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            
+            if (loading) {
+                loading.innerHTML = 'Game failed to load. Please refresh the page.';
+            }
+            if (error) {
+                error.style.display = 'block';
+                error.innerHTML = message;
+            }
+        }
+        
         // Monitor instructions visibility
         const instructions = document.getElementById('instructions');
         
@@ -206,27 +305,13 @@
             attributeFilter: ['style']
         });
         
-        // Only hide loading when game starts, keep instructions visible
+        // Start loading when page is ready
         window.addEventListener('load', function() {
-            setTimeout(function() {
-                const loading = document.getElementById('loading');
-                const error = document.getElementById('error');
-                
-                // Check if game loaded successfully
-                if (window.game && window.game.isRunning) {
-                    loading.style.display = 'none';
-                    console.log('Game loaded successfully - instructions remain visible');
-                    
-                    // Double-check instructions are visible
-                    instructions.style.display = 'block';
-                    instructions.style.visibility = 'visible';
-                    instructions.style.opacity = '1';
-                } else {
-                    loading.innerHTML = 'Game failed to load. Please refresh the page.';
-                    error.style.display = 'block';
-                    error.innerHTML = 'If the problem persists, check your browser console for errors.';
-                }
-            }, 3000); // Wait 3 seconds for game to load
+            if (typeof Phaser !== 'undefined') {
+                loadGameScripts();
+            } else {
+                showError('Phaser.js failed to load');
+            }
         });
         
         // Additional check every second to ensure instructions stay visible
